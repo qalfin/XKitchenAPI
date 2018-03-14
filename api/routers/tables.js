@@ -2,11 +2,11 @@ const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
 
-//User Model
-const User = require('../models/user');
+//Table Model
+const Table = require('../models/table');
 
 router.get('/', (req, res, next) => {
-    User.find()
+    Table.find()
         .exec()
         .then(doc => {
             res.status(200).json(doc);
@@ -21,16 +21,14 @@ router.get('/', (req, res, next) => {
 
 //insert
 router.post('/', (req, res, next) => {
-    const newUser = new User({
+    const newTable = new Table({
         _id : new mongoose.Types.ObjectId(),
-        userId : req.body.userId,
-        password : req.body.password,
-        badgeId : req.body.badgeId,
-        nick : req.body.nick,
-        fullName : req.body.fullName
+        code: req.body.code,
+        seat : req.body.seat,
+        description : req.body.description
     });
 
-    newUser.save()
+    newTable.save()
         .then(result => {
             console.log(result);
             res.status(201).json(result);
@@ -47,7 +45,7 @@ router.post('/', (req, res, next) => {
 //get by id
 router.get('/:id', (req, res, next) =>{
     const id = req.params.id;
-    User.findById(id)
+    Table.findById(id)
         .exec()
         .then(result => {
             console.log(result);
@@ -71,7 +69,7 @@ router.patch('/:id', (req,res, next) =>{
     updateOps[ops.propName] = ops.value;
     }
 
-    User.update({_id : id}, {$set : updateOps})
+    Table.update({_id : id}, {$set : updateOps})
         .exec()
         .then( result =>{
             res.status(200).json(result);
@@ -89,7 +87,7 @@ router.patch('/:id', (req,res, next) =>{
 
 router.delete('/:id', (req, res, next) =>{
     const id = req.params.id;
-    User.remove({_id : id})
+    Table.remove({_id : id})
     .exec()
     .then( result =>{
         res.status(200).json(result);
