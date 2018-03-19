@@ -2,13 +2,14 @@ const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
 
-//User Model
-const Product = require('../models/product');
+//reservation model
+const Reservation = require('../models/reservation');
 
-//Get all
+//get all
 router.get('/', (req, res, next) => {
-    Product.find()
-        .populate('category', 'initial name')
+    Reservation.find()
+        .populate('table', 'code seat description')
+        .populate('user', 'badgeId nick fullName')
         .exec()
         .then(doc => {
             res.status(200).json(doc);
@@ -16,25 +17,23 @@ router.get('/', (req, res, next) => {
         .catch(err => {
             console.log(err);
             res.status(500).json({
-                error : err
+                error: err
             });
         });
 });
 
-
-//Insert
+//insert
 router.post('/', (req, res, next) => {
-    const newProduct = new Product({
-        _id : new mongoose.Types.ObjectId(),
-        category : req.body.category,
-        code : req.body.code,
-        initial : req.body.initial,
-        name : req.body.name,
-        description : req.body.description,
-        price: req.body.price
+    const newReservation = new Reservation({
+        _id: new mongoose.Types.ObjectId(),
+        table: req.body.table,
+        user: req.body.user,
+        reference: req.body.reference,
+        guest: req.body.guest,
+        date : req.body.date
     });
 
-    newProduct.save()
+    newReservation.save()
         .then(result => {
             console.log(result);
             res.status(201).json(result);
@@ -42,20 +41,22 @@ router.post('/', (req, res, next) => {
         .catch(err => {
             console.log(err);
             res.status(500).json({
-                error : err
+                error: err
             });
         })
 });
 
-//Get by (id)
+
+//get by id
 router.get('/:id', (req, res, next) => {
     const id = req.params.id;
-    Product.findById(id)
-        .populate('category', 'initial name')
+    Reservation.findById(id)
+        // .populate('table', 'code description')
+        .populate('user', 'nick fullName')
         .exec()
-        .then(result => {
-            console.log(result);
-            res.status(200).json(result);
+        .then(doc => {
+            console.log(doc);
+            res.status(200).json(doc);
         })
         .catch(err => {
             console.log(err);
@@ -65,37 +66,39 @@ router.get('/:id', (req, res, next) => {
         })
 });
 
+//uppdate
 router.patch('/:id', (req, res, next) => {
     const id = req.params.id;
     const updateOps = {};
-    for(const ops of req.body){
+    for (const ops of req.body) {
         updateOps[ops.propName] = ops.value;
     }
 
-    Product.update({ _id : id }, { $set: updateOps })
+    Reservation.update({ _id: id }, { $set: updateOps })
         .exec()
-        .then( result => {
+        .then(result => {
             res.status(200).json(result);
         })
         .catch(err => {
             console.log(err);
             res.status(500).json({
-                message : err
+                error: err
             });
         });
 });
 
+//delete
 router.delete('/:id', (req, res, next) => {
     const id = req.params.id;
-    Product.remove({ _id : id })
+    Reservation.remove({ _id: id })
         .exec()
-        .then( result => {
+        .then(result => {
             res.status(200).json(result);
         })
         .catch(err => {
             console.log(err);
             res.status(500).json({
-                message : err
+                message: err
             });
         });
 });
